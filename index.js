@@ -1,32 +1,31 @@
-import inquirer from "inquirer";
-import qr from "qr-image";
-import fs from "fs";
+import inquirer from 'inquirer';
+import qrcode from 'qrcode';
+import fs from "fs"
 
 inquirer
   .prompt([
     {
-        "message": "Enter your URL: ", 
-        name: "URL",
-    }
+      message: "Enter the website URL: ",
+      name: "url",
+    },
   ])
   .then((answers) => {
-    const url = answers.URL;
-    var qr_svg = qr.image(url);
-    qr_svg.pipe(fs.createWriteStream('qr-image.png'));
+    const url = answers.url;
+    const fileName = url.replace(/\.com/g, '')
 
-    fs.writeFile("./URL.txt", url, (err) => {
-    if (err) throw err;
-    console.log('The file has been saved!');
-  }); 
+    qrcode.toFile(fileName + '.png', url, (err) => {
+      if (err) {
+        console.error('Error generating QR code:', err);
+      } else {
+        console.log('QR code generated successfully! Check ' + fileName + '.png');
+      }
+    });
 
-
+    fs.appendFile("./URL.txt", "\n" +  url, (err) => {
+        if (err) throw err;
+        console.log('The file has been saved!');
+      }); 
   })
   .catch((error) => {
-    if (error.isTtyError) {
-     
-    } else {
-     
-    }
+    console.error('Error:', error);
   });
-
-
